@@ -63,8 +63,6 @@ var _ confmap.Unmarshaler = (*Config)(nil)
 // Config defines configuration for receiver_creator.
 type Config struct {
 	receiverTemplates map[string]receiverTemplate
-	// WatchObservers are the extensions to listen to endpoints from.
-	WatchObservers []component.ID `mapstructure:"watch_observers"`
 }
 
 func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {

@@ -5,13 +5,10 @@ package receivercreator // import "github.com/open-telemetry/opentelemetry-colle
 
 import (
 	"context"
-	"fmt"
-
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
+	"go.uber.org/zap"
 )
 
 var _ receiver.Metrics = (*receiverCreator)(nil)
@@ -23,8 +20,9 @@ type receiverCreator struct {
 	nextLogsConsumer    consumer.Logs
 	nextMetricsConsumer consumer.Metrics
 	nextTracesConsumer  consumer.Traces
-	observerHandler     *observerHandler
-	observables         []observer.Observable
+
+	host   component.Host
+	cancel context.CancelFunc
 }
 
 func newReceiverCreator(params receiver.CreateSettings, cfg *Config) receiver.Metrics {
@@ -35,61 +33,42 @@ func newReceiverCreator(params receiver.CreateSettings, cfg *Config) receiver.Me
 }
 
 // Start receiver_creator.
-func (rc *receiverCreator) Start(_ context.Context, host component.Host) error {
-	rc.observerHandler = &observerHandler{
-		config:                rc.cfg,
-		params:                rc.params,
-		receiversByEndpointID: receiverMap{},
-		nextLogsConsumer:      rc.nextLogsConsumer,
-		nextMetricsConsumer:   rc.nextMetricsConsumer,
-		nextTracesConsumer:    rc.nextTracesConsumer,
-		runner:                newReceiverRunner(rc.params, host),
-	}
+func (rc *receiverCreator) Start(ctx context.Context, host component.Host) error {
+	rc.host = host
+	ctx = context.Background()
+	ctx, rc.cancel = context.WithCancel(ctx)
 
-	observers := map[component.ID]observer.Observable{}
+	go func() {
+		for _, template := range rc.cfg.receiverTemplates {
+			rc.params.TelemetrySettings.Logger.Info("starting receiver",
+				zap.String("name", template.id.String()))
 
-	// Match all configured observables to the extensions that are running.
-	for _, watchObserver := range rc.cfg.WatchObservers {
-		for cid, ext := range host.GetExtensions() {
-			if cid != watchObserver {
+			consumer, err := newEnhancingConsumer(rc.nextLogsConsumer, rc.nextMetricsConsumer, rc.nextTracesConsumer)
+			if err != nil {
+				rc.params.TelemetrySettings.Logger.Error("failed creating resource enhancer", zap.String("receiver", template.id.String()), zap.Error(err))
 				continue
 			}
 
-			obs, ok := ext.(observer.Observable)
-			if !ok {
-				return fmt.Errorf("extension %q in watch_observers is not an observer", watchObserver.String())
+			runner := newReceiverRunner(rc.params, rc.host)
+			_, err = runner.start(
+				receiverConfig{
+					id:     template.id,
+					config: template.config,
+				},
+				consumer,
+			)
+			if err != nil {
+				rc.params.TelemetrySettings.Logger.Error("failed to start receiver", zap.String("receiver", template.id.String()), zap.Error(err))
+				continue
 			}
-			observers[watchObserver] = obs
 		}
-	}
-
-	// Make sure all observables are present before starting any.
-	for _, watchObserver := range rc.cfg.WatchObservers {
-		if observers[watchObserver] == nil {
-			return fmt.Errorf("failed to find observer %q in the extensions list", watchObserver.String())
-		}
-	}
-
-	if len(observers) == 0 {
-		rc.params.Logger.Warn("no observers were configured and no subreceivers will be started. receiver_creator will be disabled")
-	}
-
-	// Start all configured watchers.
-	for _, observable := range observers {
-		rc.observables = append(rc.observables, observable)
-		observable.ListAndWatch(rc.observerHandler)
-	}
+	}()
 
 	return nil
 }
 
 // Shutdown stops the receiver_creator and all its receivers started at runtime.
 func (rc *receiverCreator) Shutdown(context.Context) error {
-	for _, observable := range rc.observables {
-		observable.Unsubscribe(rc.observerHandler)
-	}
-	if rc.observerHandler == nil {
-		return nil
-	}
-	return rc.observerHandler.shutdown()
+	rc.cancel()
+	return nil
 }
