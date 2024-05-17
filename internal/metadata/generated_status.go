@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Type = component.MustNewType("leader_election_receiver")
+	Type = component.MustNewType("leaderelectionreceiver")
 )
 
 const (

@@ -1,4 +1,4 @@
-type: leader_election_receiver
+type: leaderelectionreceiver
 scope_name: otelcol/leaderelectionreceiver
 
 status:
