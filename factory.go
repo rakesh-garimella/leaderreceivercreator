@@ -9,8 +9,8 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
-	"github.com/skhalash/leader-election-receiver/internal/sharedcomponent"
-	"github.com/skhalash/leader-election-receiver/internal/metadata"
+	"github.com/skhalash/leaderelectionreceiver/internal/sharedcomponent"
+	"github.com/skhalash/leaderelectionreceiver/internal/metadata"
 )
 
 // This file implements factory for receiver_creator. A receiver_creator can create other receivers at runtime.

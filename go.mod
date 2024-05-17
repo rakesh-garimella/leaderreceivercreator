@@ -1,4 +1,4 @@
-module github.com/skhalash/leader-election-receiver
+module github.com/skhalash/leaderelectionreceiver
 
 go 1.21.0
 
