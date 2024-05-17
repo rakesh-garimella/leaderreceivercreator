@@ -5,8 +5,8 @@ go 1.21.0
 require (
 	github.com/expr-lang/expr v1.16.7
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer v0.100.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent v0.100.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.100.0
+	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator v0.100.0
 	github.com/spf13/cast v1.6.0
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/collector/component v0.100.1-0.20240509190532-c555005fcc80
@@ -104,18 +104,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer => ../../extension/observer
-
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest => ../../pkg/pdatatest
-
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil => ../../pkg/pdatautil
-
-replace github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent => ../../internal/sharedcomponent
-
 retract (
 	v0.76.2
 	v0.76.1
 	v0.65.0
 )
-
-replace github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden => ../../pkg/golden

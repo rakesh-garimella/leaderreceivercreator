@@ -23,8 +23,8 @@ import (
 	semconv "go.opentelemetry.io/collector/semconv/v1.18.0"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator/internal/metadata"
+	"github.com/skhalash/leader-election-receiver/internal/metadata"
+	"github.com/skhalash/leader-election-receiver/internal/sharedcomponent"
 )
 
 func TestCreateDefaultConfig(t *testing.T) {

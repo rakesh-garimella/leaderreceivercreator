@@ -11,8 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/receiver/receivertest"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent"
+	"github.com/skhalash/leader-election-receiver/internal/sharedcomponent"
 )
 
 func TestCreateReceiver(t *testing.T) {

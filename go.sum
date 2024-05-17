@@ -91,6 +91,16 @@ github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9Gz0M=
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
+github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer v0.100.0 h1:DFO/EsTjzyU+TafWYQ8bSvVIrwU07TopEQwygU90C9s=
+github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer v0.100.0/go.mod h1:QQUgfXBq28KcvwxFwY4NPy4XA/theDwBqfssy/HSjLc=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.100.0 h1:4cDqd1ZU/HQZmijLqEvzbVV/rdgUQG08IBq5vbO1308=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.100.0/go.mod h1:940rHhObAdeWLuBGBmuK4mRwrXSQv63SOX6arprCPrk=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.100.0 h1:UtY5UvfEFNub+E5zT6vCxU18A2GYdMXZK/ClcwE2nNw=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.100.0/go.mod h1:5Ak565rKB3OZTunqssZHuXEhGTz1f73VdkfwiVp8vxg=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil v0.100.0 h1:549nET9f5zIYC5F3/FBzgZfumjBOy4xx+9rCJ24TRxw=
+github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil v0.100.0/go.mod h1:5r/6EFZnfR/zIP+fQQoD11x9b+TJYbR69kBgme0NKVs=
+github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator v0.100.0 h1:fEwOVj4PCO9E0154ZPGNYUsuMbIBO3Nb/y/+RdoHtEc=
+github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator v0.100.0/go.mod h1:2yuhxeO3Vf1SufOXYSQXl35AnlamwN02uFqGcJ4IoRk=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c h1:ncq/mPwQF4JjgDlrVEn3C11VoGHZN7m8qihwgMEtzYw=
