@@ -1,4 +1,4 @@
-type: receiver_creator
+type: leader_election_receiver
 scope_name: otelcol/leaderelectionreceiver
 
 status:

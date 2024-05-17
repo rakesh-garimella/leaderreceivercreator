@@ -3,5 +3,5 @@
 
 //go:generate mdatagen metadata.yaml
 
-// Package receivercreator implements receiver_creator that can instantiate other receivers at runtime.
+// Package leaderelectionreceiver implements leader_election_receiver that can instantiate other receivers at runtime.
 package leaderelectionreceiver
