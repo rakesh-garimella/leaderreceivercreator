@@ -86,13 +86,6 @@ func (obs *observerHandler) OnAdd(added []observer.Endpoint) {
 		obs.params.TelemetrySettings.Logger.Debug("handling added endpoint", zap.Any("env", env))
 
 		for _, template := range obs.config.receiverTemplates {
-			if matches, e := template.rule.eval(env); e != nil {
-				obs.params.TelemetrySettings.Logger.Error("failed matching rule", zap.String("rule", template.Rule), zap.Error(e))
-				continue
-			} else if !matches {
-				continue
-			}
-
 			obs.params.TelemetrySettings.Logger.Info("starting receiver",
 				zap.String("name", template.id.String()),
 				zap.String("endpoint", e.Target),
@@ -133,15 +126,7 @@ func (obs *observerHandler) OnAdd(added []observer.Endpoint) {
 			// Adds default and/or configured resource attributes (e.g. k8s.pod.uid) to resources
 			// as telemetry is emitted.
 			var consumer *enhancingConsumer
-			if consumer, err = newEnhancingConsumer(
-				obs.config.ResourceAttributes,
-				resAttrs,
-				env,
-				e,
-				obs.nextLogsConsumer,
-				obs.nextMetricsConsumer,
-				obs.nextTracesConsumer,
-			); err != nil {
+			if consumer, err = newEnhancingConsumer(obs.nextLogsConsumer, obs.nextMetricsConsumer, obs.nextTracesConsumer); err != nil {
 				obs.params.TelemetrySettings.Logger.Error("failed creating resource enhancer", zap.String("receiver", template.id.String()), zap.Error(err))
 				continue
 			}
@@ -149,9 +134,8 @@ func (obs *observerHandler) OnAdd(added []observer.Endpoint) {
 			var receiver component.Component
 			if receiver, err = obs.runner.start(
 				receiverConfig{
-					id:         template.id,
-					config:     resolvedConfig,
-					endpointID: e.ID,
+					id:     template.id,
+					config: resolvedConfig,
 				},
 				discoveredConfig,
 				consumer,

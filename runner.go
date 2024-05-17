@@ -62,13 +62,13 @@ func (run *receiverRunner) start(
 
 	receiverFactory := factory.(rcvr.Factory)
 
-	cfg, targetEndpoint, err := run.loadRuntimeReceiverConfig(receiverFactory, receiver, discoveredConfig)
+	cfg, _, err := run.loadRuntimeReceiverConfig(receiverFactory, receiver, discoveredConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	// Sets dynamically created receiver to something like receiver_creator/1/redis{endpoint="localhost:6380"}/<EndpointID>.
-	id := component.NewIDWithName(factory.Type(), fmt.Sprintf("%s/%s{endpoint=%q}/%s", receiver.id.Name(), run.idNamespace, targetEndpoint, receiver.endpointID))
+	// Sets dynamically created receiver to something like receiver_creator/1/redis.
+	id := component.NewIDWithName(factory.Type(), fmt.Sprintf("%s/%s", receiver.id.Name(), run.idNamespace))
 
 	wr := &wrappedReceiver{}
 	var createError error

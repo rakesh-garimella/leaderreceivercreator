@@ -9,9 +9,6 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
-	conventions "go.opentelemetry.io/collector/semconv/v1.6.1"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
 	"github.com/skhalash/leader-election-receiver/internal/sharedcomponent"
 	"github.com/skhalash/leader-election-receiver/internal/metadata"
 )
@@ -33,29 +30,6 @@ func NewFactory() receiver.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		ResourceAttributes: resourceAttributes{
-			observer.PodType: map[string]string{
-				conventions.AttributeK8SPodName:       "`name`",
-				conventions.AttributeK8SPodUID:        "`uid`",
-				conventions.AttributeK8SNamespaceName: "`namespace`",
-			},
-			observer.K8sServiceType: map[string]string{
-				conventions.AttributeK8SNamespaceName: "`namespace`",
-			},
-			observer.PortType: map[string]string{
-				conventions.AttributeK8SPodName:       "`pod.name`",
-				conventions.AttributeK8SPodUID:        "`pod.uid`",
-				conventions.AttributeK8SNamespaceName: "`pod.namespace`",
-			},
-			observer.ContainerType: map[string]string{
-				conventions.AttributeContainerName:      "`name`",
-				conventions.AttributeContainerImageName: "`image`",
-			},
-			observer.K8sNodeType: map[string]string{
-				conventions.AttributeK8SNodeName: "`name`",
-				conventions.AttributeK8SNodeUID:  "`uid`",
-			},
-		},
 		receiverTemplates: map[string]receiverTemplate{},
 	}
 }

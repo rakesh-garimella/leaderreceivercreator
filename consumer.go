@@ -12,8 +12,6 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
 )
 
 var _ consumer.Logs = (*enhancingConsumer)(nil)
@@ -29,37 +27,8 @@ type enhancingConsumer struct {
 	attrs   map[string]string
 }
 
-func newEnhancingConsumer(
-	resources resourceAttributes,
-	receiverAttributes map[string]string,
-	env observer.EndpointEnv,
-	endpoint observer.Endpoint,
-	nextLogs consumer.Logs,
-	nextMetrics consumer.Metrics,
-	nextTraces consumer.Traces,
-) (*enhancingConsumer, error) {
+func newEnhancingConsumer(nextLogs consumer.Logs, nextMetrics consumer.Metrics, nextTraces consumer.Traces) (*enhancingConsumer, error) {
 	attrs := map[string]string{}
-
-	for _, resource := range []map[string]string{resources[endpoint.Details.Type()], receiverAttributes} {
-		// Precompute values that will be inserted for each resource object passed through.
-		for attr, expr := range resource {
-			// If the attribute value is empty this signals to delete existing
-			if expr == "" {
-				delete(attrs, attr)
-				continue
-			}
-
-			res, err := evalBackticksInConfigValue(expr, env)
-			if err != nil {
-				return nil, fmt.Errorf("failed processing resource attribute %q for endpoint %v: %w", attr, endpoint.ID, err)
-			}
-
-			val := fmt.Sprint(res)
-			if val != "" {
-				attrs[attr] = val
-			}
-		}
-	}
 
 	ec := &enhancingConsumer{attrs: attrs}
 	if nextLogs != nil {
