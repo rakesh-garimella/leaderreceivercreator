@@ -37,13 +37,6 @@ type userConfigMap map[string]any
 // receiverTemplate is the configuration of a single subreceiver.
 type receiverTemplate struct {
 	receiverConfig
-
-	// Rule is the discovery rule that when matched will create a receiver instance
-	// based on receiverTemplate.
-	Rule string `mapstructure:"rule"`
-	// ResourceAttributes is a map of resource attributes to add to just this receiver's resource metrics.
-	// It can contain expr expressions for endpoint env value expansion
-	ResourceAttributes map[string]any `mapstructure:"resource_attributes"`
 }
 
 // resourceAttributes holds a map of default resource attributes for each Endpoint type.
@@ -103,12 +96,6 @@ func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
 		// Unmarshals receiver_creator configuration like rule.
 		if err = subreceiverSection.Unmarshal(&subreceiver, confmap.WithIgnoreUnused()); err != nil {
 			return fmt.Errorf("failed to deserialize sub-receiver %q: %w", subreceiverKey, err)
-		}
-
-		for k, v := range subreceiver.ResourceAttributes {
-			if _, ok := v.(string); !ok {
-				return fmt.Errorf("unsupported `resource_attributes` %q value %v in %s", k, v, subreceiverKey)
-			}
 		}
 
 		cfg.receiverTemplates[subreceiverKey] = subreceiver
