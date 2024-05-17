@@ -17,14 +17,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// runner starts and stops receiver instances.
-type runner interface {
-	// start a metrics receiver instance from its static config and discovered config.
-	start(receiver receiverConfig, consumer *enhancingConsumer) (component.Component, error)
-	// shutdown a receiver.
-	shutdown(rcvr component.Component) error
-}
-
 // receiverRunner handles starting/stopping of a concrete subreceiver instance.
 type receiverRunner struct {
 	logger      *zap.Logger
@@ -46,11 +38,11 @@ func newReceiverRunner(params rcvr.CreateSettings, host component.Host) *receive
 	}
 }
 
-var _ runner = (*receiverRunner)(nil)
-
 func (run *receiverRunner) start(
 	receiver receiverConfig,
-	consumer *enhancingConsumer,
+	logsConsumer consumer.Logs,
+	metricsConsumer consumer.Metrics,
+	tracesConsumer consumer.Traces,
 ) (component.Component, error) {
 	factory := run.host.GetFactory(component.KindReceiver, receiver.id.Type())
 
@@ -70,34 +62,28 @@ func (run *receiverRunner) start(
 
 	wr := &wrappedReceiver{}
 	var createError error
-	if consumer.logs != nil {
-		if wr.logs, err = run.createLogsRuntimeReceiver(receiverFactory, id, cfg, consumer); err != nil {
-			if errors.Is(err, component.ErrDataTypeIsNotSupported) {
-				run.logger.Info("instantiated receiver doesn't support logs", zap.String("receiver", receiver.id.String()), zap.Error(err))
-				wr.logs = nil
-			} else {
-				createError = multierr.Combine(createError, err)
-			}
+	if wr.logs, err = run.createLogsRuntimeReceiver(receiverFactory, id, cfg, logsConsumer); err != nil {
+		if errors.Is(err, component.ErrDataTypeIsNotSupported) {
+			run.logger.Info("instantiated receiver doesn't support logs", zap.String("receiver", receiver.id.String()), zap.Error(err))
+			wr.logs = nil
+		} else {
+			createError = multierr.Combine(createError, err)
 		}
 	}
-	if consumer.metrics != nil {
-		if wr.metrics, err = run.createMetricsRuntimeReceiver(receiverFactory, id, cfg, consumer); err != nil {
-			if errors.Is(err, component.ErrDataTypeIsNotSupported) {
-				run.logger.Info("instantiated receiver doesn't support metrics", zap.String("receiver", receiver.id.String()), zap.Error(err))
-				wr.metrics = nil
-			} else {
-				createError = multierr.Combine(createError, err)
-			}
+	if wr.metrics, err = run.createMetricsRuntimeReceiver(receiverFactory, id, cfg, metricsConsumer); err != nil {
+		if errors.Is(err, component.ErrDataTypeIsNotSupported) {
+			run.logger.Info("instantiated receiver doesn't support metrics", zap.String("receiver", receiver.id.String()), zap.Error(err))
+			wr.metrics = nil
+		} else {
+			createError = multierr.Combine(createError, err)
 		}
 	}
-	if consumer.traces != nil {
-		if wr.traces, err = run.createTracesRuntimeReceiver(receiverFactory, id, cfg, consumer); err != nil {
-			if errors.Is(err, component.ErrDataTypeIsNotSupported) {
-				run.logger.Info("instantiated receiver doesn't support traces", zap.String("receiver", receiver.id.String()), zap.Error(err))
-				wr.traces = nil
-			} else {
-				createError = multierr.Combine(createError, err)
-			}
+	if wr.traces, err = run.createTracesRuntimeReceiver(receiverFactory, id, cfg, tracesConsumer); err != nil {
+		if errors.Is(err, component.ErrDataTypeIsNotSupported) {
+			run.logger.Info("instantiated receiver doesn't support traces", zap.String("receiver", receiver.id.String()), zap.Error(err))
+			wr.traces = nil
+		} else {
+			createError = multierr.Combine(createError, err)
 		}
 	}
 

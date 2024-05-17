@@ -9,15 +9,11 @@ import (
 	"github.com/spf13/cast"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
 )
 
 const (
 	// receiversConfigKey is the config key name used to specify the subreceivers.
 	receiversConfigKey = "receivers"
-	// endpointConfigKey is the key name mapping to ReceiverSettings.Endpoint.
-	endpointConfigKey = "endpoint"
 	// configKey is the key name in a subreceiver.
 	configKey = "config"
 )
@@ -39,10 +35,6 @@ type receiverTemplate struct {
 	receiverConfig
 }
 
-// resourceAttributes holds a map of default resource attributes for each Endpoint type.
-type resourceAttributes map[observer.EndpointType]map[string]string
-
-// newReceiverTemplate creates a receiverTemplate instance from the full name of a subreceiver
 // and its arbitrary config map values.
 func newReceiverTemplate(name string, cfg userConfigMap) (receiverTemplate, error) {
 	id := component.ID{}

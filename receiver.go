@@ -43,19 +43,15 @@ func (rc *receiverCreator) Start(ctx context.Context, host component.Host) error
 			rc.params.TelemetrySettings.Logger.Info("starting receiver",
 				zap.String("name", template.id.String()))
 
-			consumer, err := newEnhancingConsumer(rc.nextLogsConsumer, rc.nextMetricsConsumer, rc.nextTracesConsumer)
-			if err != nil {
-				rc.params.TelemetrySettings.Logger.Error("failed creating resource enhancer", zap.String("receiver", template.id.String()), zap.Error(err))
-				continue
-			}
-
 			runner := newReceiverRunner(rc.params, rc.host)
-			_, err = runner.start(
+			_, err := runner.start(
 				receiverConfig{
 					id:     template.id,
 					config: template.config,
 				},
-				consumer,
+				rc.nextLogsConsumer,
+				rc.nextMetricsConsumer,
+				rc.nextTracesConsumer,
 			)
 			if err != nil {
 				rc.params.TelemetrySettings.Logger.Error("failed to start receiver", zap.String("receiver", template.id.String()), zap.Error(err))
