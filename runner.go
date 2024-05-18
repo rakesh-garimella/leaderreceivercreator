@@ -90,6 +90,10 @@ func (run *receiverRunner) start(
 		return fmt.Errorf("failed creating endpoint-derived receiver: %w", createError)
 	}
 
+	run.params.Logger.Info("Starting subreceiver",
+		zap.String("receiver", receiver.id.String()),
+		zap.Any("config", cfg))
+
 	if err = wr.Start(context.Background(), run.host); err != nil {
 		return fmt.Errorf("failed starting endpoint-derived receiver: %w", createError)
 	}
