@@ -6,16 +6,13 @@ package leaderelectionreceiver
 import (
 	"fmt"
 
-	"github.com/spf13/cast"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
 )
 
 const (
 	// receiversConfigKey is the config key name used to specify the subreceivers.
-	receiversConfigKey = "receivers"
-	// configKey is the key name in a subreceiver.
-	configKey = "config"
+	subreceiverConfigKey = "receiver"
 )
 
 // receiverConfig describes a receiver instance with a default config.
@@ -30,23 +27,16 @@ type receiverConfig struct {
 // userConfigMap is an arbitrary map of string keys to arbitrary values as specified by the user
 type userConfigMap map[string]any
 
-// receiverTemplate is the configuration of a single subreceiver.
-type receiverTemplate struct {
-	receiverConfig
-}
-
 // and its arbitrary config map values.
-func newReceiverTemplate(name string, cfg userConfigMap) (receiverTemplate, error) {
+func newReceiverConfig(name string, cfg userConfigMap) (receiverConfig, error) {
 	id := component.ID{}
 	if err := id.UnmarshalText([]byte(name)); err != nil {
-		return receiverTemplate{}, err
+		return receiverConfig{}, err
 	}
 
-	return receiverTemplate{
-		receiverConfig: receiverConfig{
-			id:     id,
-			config: cfg,
-		},
+	return receiverConfig{
+		id:     id,
+		config: cfg,
 	}, nil
 }
 
@@ -54,7 +44,7 @@ var _ confmap.Unmarshaler = (*Config)(nil)
 
 // Config defines configuration for receiver_creator.
 type Config struct {
-	receiverTemplates map[string]receiverTemplate
+	subreceiverConfig receiverConfig
 }
 
 func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
@@ -67,28 +57,25 @@ func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
 		return err
 	}
 
-	receiversCfg, err := componentParser.Sub(receiversConfigKey)
+	subreceiverSection, err := componentParser.Sub(subreceiverConfigKey)
 	if err != nil {
-		return fmt.Errorf("unable to extract key %v: %w", receiversConfigKey, err)
+		return fmt.Errorf("unable to extract key %v: %w", subreceiverConfigKey, err)
 	}
 
-	for subreceiverKey := range receiversCfg.ToStringMap() {
-		subreceiverSection, err := receiversCfg.Sub(subreceiverKey)
-		if err != nil {
-			return fmt.Errorf("unable to extract subreceiver key %v: %w", subreceiverKey, err)
-		}
-		cfgSection := cast.ToStringMap(subreceiverSection.Get(configKey))
-		subreceiver, err := newReceiverTemplate(subreceiverKey, cfgSection)
-		if err != nil {
-			return err
-		}
+	subreceiverKeys := subreceiverSection.AllKeys()
+	if len(subreceiverKeys) != 1 {
+		return fmt.Errorf("only one subreceiver can be defined")
+	}
 
-		// Unmarshals receiver_creator configuration like rule.
-		if err = subreceiverSection.Unmarshal(&subreceiver, confmap.WithIgnoreUnused()); err != nil {
-			return fmt.Errorf("failed to deserialize sub-receiver %q: %w", subreceiverKey, err)
-		}
+	subreceiverName := subreceiverKeys[0]
+	subreceiverConfig, err := subreceiverSection.Sub(subreceiverName)
+	if err != nil {
+		return fmt.Errorf("unable to extract subreceiver %v: %w", subreceiverName, err)
+	}
 
-		cfg.receiverTemplates[subreceiverKey] = subreceiver
+	cfg.subreceiverConfig, err = newReceiverConfig(subreceiverName, subreceiverConfig.ToStringMap())
+	if err != nil {
+		return fmt.Errorf("failed to load subreceiver config %v: %w", subreceiverName, err)
 	}
 
 	return nil

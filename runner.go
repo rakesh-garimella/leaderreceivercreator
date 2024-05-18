@@ -23,7 +23,7 @@ type receiverRunner struct {
 	params      rcvr.CreateSettings
 	idNamespace component.ID
 	host        component.Host
-	receivers   map[string]*wrappedReceiver
+	receiver    component.Component
 	lock        *sync.Mutex
 }
 
@@ -33,7 +33,6 @@ func newReceiverRunner(params rcvr.CreateSettings, host component.Host) *receive
 		params:      params,
 		idNamespace: params.ID,
 		host:        host,
-		receivers:   map[string]*wrappedReceiver{},
 		lock:        &sync.Mutex{},
 	}
 }
@@ -43,18 +42,18 @@ func (run *receiverRunner) start(
 	logsConsumer consumer.Logs,
 	metricsConsumer consumer.Metrics,
 	tracesConsumer consumer.Traces,
-) (component.Component, error) {
+) error {
 	factory := run.host.GetFactory(component.KindReceiver, receiver.id.Type())
 
 	if factory == nil {
-		return nil, fmt.Errorf("unable to lookup factory for receiver %q", receiver.id.String())
+		return fmt.Errorf("unable to lookup factory for receiver %q", receiver.id.String())
 	}
 
 	receiverFactory := factory.(rcvr.Factory)
 
-	cfg, _, err := run.loadRuntimeReceiverConfig(receiverFactory, receiver)
+	cfg, _, err := run.loadConfig(receiverFactory, receiver)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Sets dynamically created receiver to something like receiver_creator/1/redis.
@@ -88,24 +87,27 @@ func (run *receiverRunner) start(
 	}
 
 	if createError != nil {
-		return nil, fmt.Errorf("failed creating endpoint-derived receiver: %w", createError)
+		return fmt.Errorf("failed creating endpoint-derived receiver: %w", createError)
 	}
 
 	if err = wr.Start(context.Background(), run.host); err != nil {
-		return nil, fmt.Errorf("failed starting endpoint-derived receiver: %w", createError)
+		return fmt.Errorf("failed starting endpoint-derived receiver: %w", createError)
 	}
 
-	return wr, nil
+	run.receiver = wr
+
+	return nil
 }
 
 // shutdown the given receiver.
-func (run *receiverRunner) shutdown(rcvr component.Component) error {
-	return rcvr.Shutdown(context.Background())
+func (run *receiverRunner) shutdown(ctx context.Context) error {
+	if run.receiver != nil {
+		return run.receiver.Shutdown(ctx)
+	}
+	return nil
 }
 
-// loadRuntimeReceiverConfig loads the given receiverTemplate merged with config values
-// that may have been discovered at runtime.
-func (run *receiverRunner) loadRuntimeReceiverConfig(
+func (run *receiverRunner) loadConfig(
 	factory rcvr.Factory,
 	receiver receiverConfig,
 ) (component.Config, string, error) {

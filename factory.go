@@ -29,9 +29,7 @@ func NewFactory() receiver.Factory {
 }
 
 func createDefaultConfig() component.Config {
-	return &Config{
-		receiverTemplates: map[string]receiverTemplate{},
-	}
+	return &Config{}
 }
 
 func createLogsReceiver(
