@@ -18,10 +18,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var _ receiver.Metrics = (*receiverCreator)(nil)
+var _ receiver.Metrics = (*leaderElectionReceiver)(nil)
 
-// receiverCreator implements consumer.Metrics.
-type receiverCreator struct {
+// leaderElectionReceiver implements consumer.Metrics.
+type leaderElectionReceiver struct {
 	params              receiver.CreateSettings
 	cfg                 *Config
 	nextLogsConsumer    consumer.Logs
@@ -33,22 +33,26 @@ type receiverCreator struct {
 }
 
 func newReceiverCreator(params receiver.CreateSettings, cfg *Config) receiver.Metrics {
-	return &receiverCreator{
+	return &leaderElectionReceiver{
 		params: params,
 		cfg:    cfg,
 	}
 }
 
 // Start receiver_creator.
-func (rc *receiverCreator) Start(ctx context.Context, host component.Host) error {
+func (rc *leaderElectionReceiver) Start(ctx context.Context, host component.Host) error {
 	rc.host = host
 	ctx = context.Background()
 	ctx, rc.cancel = context.WithCancel(ctx)
+
+	rc.params.TelemetrySettings.Logger.Info("Starting leader election receiver...")
 
 	client, err := rc.newClient()
 	if err != nil {
 		return fmt.Errorf("failed to create Kubernetes client: %w", err)
 	}
+
+	rc.params.TelemetrySettings.Logger.Info("Creating leader elector...")
 
 	if _, err := NewLeaderElector(
 		client,
@@ -62,10 +66,12 @@ func (rc *receiverCreator) Start(ctx context.Context, host component.Host) error
 		return fmt.Errorf("failed to create leader elector: %w", err)
 	}
 
+	rc.params.TelemetrySettings.Logger.Info("Leader elector created")
+
 	return nil
 }
 
-func (rc *receiverCreator) newClient() (kubernetes.Interface, error) {
+func (rc *leaderElectionReceiver) newClient() (kubernetes.Interface, error) {
 	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
 	config, err := rest.InClusterConfig()
@@ -85,7 +91,7 @@ func (rc *receiverCreator) newClient() (kubernetes.Interface, error) {
 	return client, nil
 }
 
-func (rc *receiverCreator) startReceiverRunner() error {
+func (rc *leaderElectionReceiver) startReceiverRunner() error {
 	for _, template := range rc.cfg.receiverTemplates {
 		rc.params.TelemetrySettings.Logger.Info("starting receiver",
 			zap.String("name", template.id.String()))
@@ -108,7 +114,7 @@ func (rc *receiverCreator) startReceiverRunner() error {
 }
 
 // Shutdown stops the receiver_creator and all its receivers started at runtime.
-func (rc *receiverCreator) Shutdown(context.Context) error {
+func (rc *leaderElectionReceiver) Shutdown(context.Context) error {
 	rc.cancel()
 	return nil
 }

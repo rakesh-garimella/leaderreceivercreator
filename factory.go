@@ -43,7 +43,7 @@ func createLogsReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*receiverCreator).nextLogsConsumer = consumer
+	r.Component.(*leaderElectionReceiver).nextLogsConsumer = consumer
 	return r, nil
 }
 
@@ -56,7 +56,7 @@ func createMetricsReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*receiverCreator).nextMetricsConsumer = consumer
+	r.Component.(*leaderElectionReceiver).nextMetricsConsumer = consumer
 	return r, nil
 }
 
@@ -69,6 +69,6 @@ func createTracesReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*receiverCreator).nextTracesConsumer = consumer
+	r.Component.(*leaderElectionReceiver).nextTracesConsumer = consumer
 	return r, nil
 }
