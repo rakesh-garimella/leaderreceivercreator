@@ -54,7 +54,7 @@ func (rc *leaderElectionReceiver) Start(ctx context.Context, host component.Host
 
 	rc.params.TelemetrySettings.Logger.Info("Creating leader elector...")
 
-	if _, err := NewLeaderElector(
+	leaderElector, err := newLeaderElector(
 		client,
 		func(ctx context.Context) {
 			rc.params.TelemetrySettings.Logger.Info("Elected as leader")
@@ -62,12 +62,12 @@ func (rc *leaderElectionReceiver) Start(ctx context.Context, host component.Host
 		func() {
 			rc.params.TelemetrySettings.Logger.Info("Lost leadership")
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return fmt.Errorf("failed to create leader elector: %w", err)
 	}
 
-	rc.params.TelemetrySettings.Logger.Info("Leader elector created")
-
+	leaderElector.Run(ctx)
 	return nil
 }
 

@@ -61,8 +61,8 @@ func getInClusterNamespace() (string, error) {
 	return string(namespace), nil
 }
 
-// NewLeaderElector return  a leader elector object using client-go
-func NewLeaderElector(
+// newLeaderElector return  a leader elector object using client-go
+func newLeaderElector(
 	client kubernetes.Interface,
 	onStartedLeading func(context.Context),
 	onStoppedLeading func(),
