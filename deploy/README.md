@@ -3,7 +3,7 @@
 1. Run the following command to deploy the application:
 
 ```bash
-kubectl apply -f deploy/
+kubectl apply -f kube/
 ```
 
 2. Run the following command to check the status of the deployment:
