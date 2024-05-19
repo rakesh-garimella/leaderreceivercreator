@@ -58,13 +58,13 @@ func (ler *leaderElectionReceiver) Start(ctx context.Context, host component.Hos
 	leaderElector, err := newLeaderElector(
 		client,
 		func(ctx context.Context) {
-			ler.params.TelemetrySettings.Logger.Info("Elected as leader. Starting sub-receiver...")
+			ler.params.TelemetrySettings.Logger.Info("Elected as leader")
 			if err := ler.startSubReceiver(); err != nil {
 				ler.params.TelemetrySettings.Logger.Error("Failed to start sub-receiver", zap.Error(err))
 			}
 		},
 		func() {
-			ler.params.TelemetrySettings.Logger.Info("Lost leadership. Stopping sub-receiver...")
+			ler.params.TelemetrySettings.Logger.Info("Lost leadership")
 			if err := ler.stopSubReceiver(); err != nil {
 				ler.params.TelemetrySettings.Logger.Error("Failed to stop sub-receiver", zap.Error(err))
 			}
