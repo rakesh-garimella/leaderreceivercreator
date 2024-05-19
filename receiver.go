@@ -99,7 +99,7 @@ func (ler *leaderElectionReceiver) newClient() (kubernetes.Interface, error) {
 }
 
 func (ler *leaderElectionReceiver) startSubReceiver() error {
-	ler.params.TelemetrySettings.Logger.Info("starting subreceiver",
+	ler.params.TelemetrySettings.Logger.Info("Starting subreceiver",
 		zap.String("name", ler.cfg.subreceiverConfig.id.String()))
 
 	ler.subReceiverRunner = newReceiverRunner(ler.params, ler.host)
@@ -118,6 +118,9 @@ func (ler *leaderElectionReceiver) startSubReceiver() error {
 }
 
 func (ler *leaderElectionReceiver) stopSubReceiver() error {
+	ler.params.TelemetrySettings.Logger.Info("Stopping subreceiver",
+		zap.String("name", ler.cfg.subreceiverConfig.id.String()))
+
 	ler.subReceiverRunner.shutdown(context.Background())
 	return nil
 }
