@@ -1,4 +1,4 @@
-leaderreceivercreator:
+leader_receiver_creator:
   receiver:
     otlp:
       protocols:

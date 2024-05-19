@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 	"github.com/stretchr/testify/require"
-	"github.com/skhalash/leaderelectionreceiver/internal/metadata"
+	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 	"github.com/stretchr/testify/assert"
 )
 
