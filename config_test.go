@@ -26,7 +26,7 @@ func TestLoadConfig(t *testing.T) {
 			expected: &Config{
 				subreceiverConfig: receiverConfig{
 					id: component.MustNewID("otlp"),
-					config: userConfigMap{
+					config: map[string]any{
 						"protocols": map[string]any{
 							"grpc": nil,
 						},

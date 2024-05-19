@@ -33,7 +33,7 @@ type leaderReceiverCreator struct {
 	cancel            context.CancelFunc
 }
 
-func newReceiverCreator(params receiver.CreateSettings, cfg *Config) receiver.Metrics {
+func newLeaderReceiverCreator(params receiver.CreateSettings, cfg *Config) component.Component {
 	return &leaderReceiverCreator{
 		params: params,
 		cfg:    cfg,

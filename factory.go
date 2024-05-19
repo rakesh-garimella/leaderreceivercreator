@@ -13,11 +13,8 @@ import (
 	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 )
 
-// This file implements factory for receiver_creator. A receiver_creator can create other receivers at runtime.
-
 var receivers = sharedcomponent.NewSharedComponents()
 
-// NewFactory creates a factory for receiver creator.
 func NewFactory() receiver.Factory {
 	return receiver.NewFactory(
 		metadata.Type,
@@ -39,7 +36,7 @@ func createLogsReceiver(
 	consumer consumer.Logs,
 ) (receiver.Logs, error) {
 	r := receivers.GetOrAdd(cfg, func() component.Component {
-		return newReceiverCreator(params, cfg.(*Config))
+		return newLeaderReceiverCreator(params, cfg.(*Config))
 	})
 	r.Component.(*leaderReceiverCreator).nextLogsConsumer = consumer
 	return r, nil
@@ -52,7 +49,7 @@ func createMetricsReceiver(
 	consumer consumer.Metrics,
 ) (receiver.Metrics, error) {
 	r := receivers.GetOrAdd(cfg, func() component.Component {
-		return newReceiverCreator(params, cfg.(*Config))
+		return newLeaderReceiverCreator(params, cfg.(*Config))
 	})
 	r.Component.(*leaderReceiverCreator).nextMetricsConsumer = consumer
 	return r, nil
@@ -65,7 +62,7 @@ func createTracesReceiver(
 	consumer consumer.Traces,
 ) (receiver.Traces, error) {
 	r := receivers.GetOrAdd(cfg, func() component.Component {
-		return newReceiverCreator(params, cfg.(*Config))
+		return newLeaderReceiverCreator(params, cfg.(*Config))
 	})
 	r.Component.(*leaderReceiverCreator).nextTracesConsumer = consumer
 	return r, nil

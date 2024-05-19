@@ -21,14 +21,11 @@ type receiverConfig struct {
 	id component.ID
 	// config is the map configured by the user in the config file. It is the contents of the map from
 	// the "config" section. The keys and values are arbitrarily configured by the user.
-	config userConfigMap
+	config map[string]any
 }
 
-// userConfigMap is an arbitrary map of string keys to arbitrary values as specified by the user
-type userConfigMap map[string]any
-
 // and its arbitrary config map values.
-func newReceiverConfig(name string, cfg userConfigMap) (receiverConfig, error) {
+func newReceiverConfig(name string, cfg map[string]any) (receiverConfig, error) {
 	id := component.ID{}
 	if err := id.UnmarshalText([]byte(name)); err != nil {
 		return receiverConfig{}, fmt.Errorf("failed to parse subreceiver id %v: %w", name, err)
