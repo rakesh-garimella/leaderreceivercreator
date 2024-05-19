@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package leaderelectionreceiver
+package leaderreceivercreator
 
 import (
 	"fmt"
@@ -18,10 +18,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var _ receiver.Metrics = (*leaderElectionReceiver)(nil)
+var _ receiver.Metrics = (*leaderReceiverCreator)(nil)
 
-// leaderElectionReceiver implements consumer.Metrics.
-type leaderElectionReceiver struct {
+// leaderReceiverCreator implements consumer.Metrics.
+type leaderReceiverCreator struct {
 	params              receiver.CreateSettings
 	cfg                 *Config
 	nextLogsConsumer    consumer.Logs
@@ -34,14 +34,14 @@ type leaderElectionReceiver struct {
 }
 
 func newReceiverCreator(params receiver.CreateSettings, cfg *Config) receiver.Metrics {
-	return &leaderElectionReceiver{
+	return &leaderReceiverCreator{
 		params: params,
 		cfg:    cfg,
 	}
 }
 
 // Start receiver_creator.
-func (ler *leaderElectionReceiver) Start(ctx context.Context, host component.Host) error {
+func (ler *leaderReceiverCreator) Start(ctx context.Context, host component.Host) error {
 	ler.host = host
 	ctx = context.Background()
 	ctx, ler.cancel = context.WithCancel(ctx)
@@ -60,13 +60,13 @@ func (ler *leaderElectionReceiver) Start(ctx context.Context, host component.Hos
 		func(ctx context.Context) {
 			ler.params.TelemetrySettings.Logger.Info("Elected as leader")
 			if err := ler.startSubReceiver(); err != nil {
-				ler.params.TelemetrySettings.Logger.Error("Failed to start sub-receiver", zap.Error(err))
+				ler.params.TelemetrySettings.Logger.Error("Failed to start subreceiver", zap.Error(err))
 			}
 		},
 		func() {
 			ler.params.TelemetrySettings.Logger.Info("Lost leadership")
 			if err := ler.stopSubReceiver(); err != nil {
-				ler.params.TelemetrySettings.Logger.Error("Failed to stop sub-receiver", zap.Error(err))
+				ler.params.TelemetrySettings.Logger.Error("Failed to stop subreceiver", zap.Error(err))
 			}
 		},
 	)
@@ -78,7 +78,7 @@ func (ler *leaderElectionReceiver) Start(ctx context.Context, host component.Hos
 	return nil
 }
 
-func (ler *leaderElectionReceiver) newClient() (kubernetes.Interface, error) {
+func (ler *leaderReceiverCreator) newClient() (kubernetes.Interface, error) {
 	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
 	config, err := rest.InClusterConfig()
@@ -98,7 +98,7 @@ func (ler *leaderElectionReceiver) newClient() (kubernetes.Interface, error) {
 	return client, nil
 }
 
-func (ler *leaderElectionReceiver) startSubReceiver() error {
+func (ler *leaderReceiverCreator) startSubReceiver() error {
 	ler.params.TelemetrySettings.Logger.Info("Starting subreceiver",
 		zap.String("name", ler.cfg.subreceiverConfig.id.String()))
 
@@ -117,7 +117,7 @@ func (ler *leaderElectionReceiver) startSubReceiver() error {
 	return nil
 }
 
-func (ler *leaderElectionReceiver) stopSubReceiver() error {
+func (ler *leaderReceiverCreator) stopSubReceiver() error {
 	ler.params.TelemetrySettings.Logger.Info("Stopping subreceiver",
 		zap.String("name", ler.cfg.subreceiverConfig.id.String()))
 
@@ -126,7 +126,7 @@ func (ler *leaderElectionReceiver) stopSubReceiver() error {
 }
 
 // Shutdown stops the receiver_creator and all its receivers started at runtime.
-func (ler *leaderElectionReceiver) Shutdown(context.Context) error {
+func (ler *leaderReceiverCreator) Shutdown(context.Context) error {
 	ler.cancel()
 	return nil
 }

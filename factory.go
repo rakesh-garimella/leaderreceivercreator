@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package leaderelectionreceiver
+package leaderreceivercreator
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
-	"github.com/skhalash/leaderelectionreceiver/internal/sharedcomponent"
-	"github.com/skhalash/leaderelectionreceiver/internal/metadata"
+	"github.com/skhalash/leaderreceivercreator/internal/sharedcomponent"
+	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 )
 
 // This file implements factory for receiver_creator. A receiver_creator can create other receivers at runtime.
@@ -41,7 +41,7 @@ func createLogsReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*leaderElectionReceiver).nextLogsConsumer = consumer
+	r.Component.(*leaderReceiverCreator).nextLogsConsumer = consumer
 	return r, nil
 }
 
@@ -54,7 +54,7 @@ func createMetricsReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*leaderElectionReceiver).nextMetricsConsumer = consumer
+	r.Component.(*leaderReceiverCreator).nextMetricsConsumer = consumer
 	return r, nil
 }
 
@@ -67,6 +67,6 @@ func createTracesReceiver(
 	r := receivers.GetOrAdd(cfg, func() component.Component {
 		return newReceiverCreator(params, cfg.(*Config))
 	})
-	r.Component.(*leaderElectionReceiver).nextTracesConsumer = consumer
+	r.Component.(*leaderReceiverCreator).nextTracesConsumer = consumer
 	return r, nil
 }

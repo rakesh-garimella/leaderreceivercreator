@@ -1,4 +1,4 @@
-leaderelectionreceiver:
+leaderreceivercreator:
   receiver:
     otlp:
       protocols:

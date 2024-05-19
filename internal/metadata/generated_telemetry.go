@@ -9,9 +9,9 @@ import (
 )
 
 func Meter(settings component.TelemetrySettings) metric.Meter {
-	return settings.MeterProvider.Meter("otelcol/leaderelectionreceiver")
+	return settings.MeterProvider.Meter("otelcol/leaderreceivercreator")
 }
 
 func Tracer(settings component.TelemetrySettings) trace.Tracer {
-	return settings.TracerProvider.Tracer("otelcol/leaderelectionreceiver")
+	return settings.TracerProvider.Tracer("otelcol/leaderreceivercreator")
 }

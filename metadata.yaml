@@ -1,5 +1,5 @@
-type: leaderelectionreceiver
-scope_name: otelcol/leaderelectionreceiver
+type: leader_receiver_creator
+scope_name: otelcol/leaderreceivercreator
 
 status:
   class: receiver

@@ -18,5 +18,5 @@ receivers:
   - gomod:
       github.com/open-telemetry/opentelemetry-collector-contrib/receiver/k8sclusterreceiver v0.100.0
   - gomod:
-      github.com/skhalash/leaderelectionreceiver main 
+      github.com/skhalash/leaderreceivercreator main
 

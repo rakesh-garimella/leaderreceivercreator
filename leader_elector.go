@@ -1,4 +1,4 @@
-package leaderelectionreceiver
+package leaderreceivercreator
 
 import (
 	"fmt"

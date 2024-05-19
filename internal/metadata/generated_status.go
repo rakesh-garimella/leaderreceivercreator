@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	Type = component.MustNewType("leaderelectionreceiver")
+	Type = component.MustNewType("leader_receiver_creator")
 )
 
 const (
+	MetricsStability = component.StabilityLevelAlpha
 	LogsStability    = component.StabilityLevelAlpha
 	TracesStability  = component.StabilityLevelAlpha
-	MetricsStability = component.StabilityLevelBeta
 )
