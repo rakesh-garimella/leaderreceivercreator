@@ -51,7 +51,7 @@ func (run *receiverRunner) start(
 
 	receiverFactory := factory.(rcvr.Factory)
 
-	cfg, _, err := run.loadConfig(receiverFactory, receiver)
+	cfg, _, err := run.loadReceiverConfig(receiverFactory, receiver)
 	if err != nil {
 		return err
 	}
@@ -111,14 +111,13 @@ func (run *receiverRunner) shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (run *receiverRunner) loadConfig(
+func (run *receiverRunner) loadReceiverConfig(
 	factory rcvr.Factory,
 	receiver receiverConfig,
 ) (component.Config, string, error) {
-	mergedConfig := confmap.NewFromStringMap(receiver.config)
 	receiverCfg := factory.CreateDefaultConfig()
-	if err := component.UnmarshalConfig(mergedConfig, receiverCfg); err != nil {
-		return nil, "", fmt.Errorf("failed to load %q template config: %w", receiver.id.String(), err)
+	if err := component.UnmarshalConfig(confmap.NewFromStringMap(receiver.config), receiverCfg); err != nil {
+		return nil, "", fmt.Errorf("failed to load %q subreceiver config: %w", receiver.id.String(), err)
 	}
 	return receiverCfg, "", nil
 }

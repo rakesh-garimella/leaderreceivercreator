@@ -31,7 +31,7 @@ type userConfigMap map[string]any
 func newReceiverConfig(name string, cfg userConfigMap) (receiverConfig, error) {
 	id := component.ID{}
 	if err := id.UnmarshalText([]byte(name)); err != nil {
-		return receiverConfig{}, err
+		return receiverConfig{}, fmt.Errorf("failed to parse subreceiver id %v: %w", name, err)
 	}
 
 	return receiverConfig{
@@ -57,25 +57,23 @@ func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
 		return err
 	}
 
-	subreceiverSection, err := componentParser.Sub(subreceiverConfigKey)
+	subreceiverConfig, err := componentParser.Sub(subreceiverConfigKey)
 	if err != nil {
 		return fmt.Errorf("unable to extract key %v: %w", subreceiverConfigKey, err)
 	}
 
-	subreceiverKeys := subreceiverSection.AllKeys()
-	if len(subreceiverKeys) != 1 {
-		return fmt.Errorf("only one subreceiver can be defined")
-	}
+	for subreceiverKey := range subreceiverConfig.ToStringMap() {
+		receiverConfig, err := subreceiverConfig.Sub(subreceiverKey)
+		if err != nil {
+			return fmt.Errorf("unable to extract subreceiver key %v: %w", subreceiverKey, err)
+		}
 
-	subreceiverName := subreceiverKeys[0]
-	subreceiverConfig, err := subreceiverSection.Sub(subreceiverName)
-	if err != nil {
-		return fmt.Errorf("unable to extract subreceiver %v: %w", subreceiverName, err)
-	}
+		cfg.subreceiverConfig, err = newReceiverConfig(subreceiverKey, receiverConfig.ToStringMap())
+		if err != nil {
+			return fmt.Errorf("failed to create subreceiver config: %w", err)
+		}
 
-	cfg.subreceiverConfig, err = newReceiverConfig(subreceiverName, subreceiverConfig.ToStringMap())
-	if err != nil {
-		return fmt.Errorf("failed to load subreceiver config %v: %w", subreceiverName, err)
+		return nil
 	}
 
 	return nil
