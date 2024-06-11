@@ -6,11 +6,11 @@ package leaderreceivercreator
 import (
 	"context"
 
+	"github.com/skhalash/leaderreceivercreator/internal/metadata"
+	"github.com/skhalash/leaderreceivercreator/internal/sharedcomponent"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
-	"github.com/skhalash/leaderreceivercreator/internal/sharedcomponent"
-	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 )
 
 var receivers = sharedcomponent.NewSharedComponents()

@@ -4,8 +4,8 @@
 package leaderreceivercreator
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -69,6 +69,7 @@ func (ler *leaderReceiverCreator) Start(ctx context.Context, host component.Host
 				ler.params.TelemetrySettings.Logger.Error("Failed to stop subreceiver", zap.Error(err))
 			}
 		},
+		ler.cfg.leaderElectionConfig,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create leader elector: %w", err)

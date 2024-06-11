@@ -4,10 +4,10 @@ import (
 	"os"
 	"time"
 
+	"context"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/leaderelection"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
-	"context"
 )
 
 const (
@@ -37,13 +37,9 @@ func newResourceLock(client kubernetes.Interface, leaderElectionNamespace, lockN
 }
 
 // newLeaderElector return  a leader elector object using client-go
-func newLeaderElector(
-	client kubernetes.Interface,
-	onStartedLeading func(context.Context),
-	onStoppedLeading func(),
-) (*leaderelection.LeaderElector, error) {
-	namespace := "default"
-	lockName := "lock"
+func newLeaderElector(client kubernetes.Interface, onStartedLeading func(context.Context), onStoppedLeading func(), cfg leaderElectionConfig) (*leaderelection.LeaderElector, error) {
+	namespace := cfg.leaseNamespace
+	lockName := cfg.leaseName
 
 	resourceLock, err := newResourceLock(client, namespace, lockName)
 	if err != nil {
@@ -52,9 +48,9 @@ func newLeaderElector(
 
 	leConfig := leaderelection.LeaderElectionConfig{
 		Lock:          resourceLock,
-		LeaseDuration: defaultLeaseDuration,
-		RenewDeadline: defaultRenewDeadline,
-		RetryPeriod:   defaultRetryPeriod,
+		LeaseDuration: cfg.leaseDurationSeconds,
+		RenewDeadline: cfg.renewDeadlineSeconds,
+		RetryPeriod:   cfg.retryPeriodSeconds,
 		Callbacks: leaderelection.LeaderCallbacks{
 			OnStartedLeading: onStartedLeading,
 			OnStoppedLeading: onStoppedLeading,
