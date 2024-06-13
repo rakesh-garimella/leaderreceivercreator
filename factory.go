@@ -5,6 +5,7 @@ package leaderreceivercreator
 
 import (
 	"context"
+	"time"
 
 	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 	"github.com/skhalash/leaderreceivercreator/internal/sharedcomponent"
@@ -12,6 +13,8 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
 )
+
+const typeStr = "leader_receiver_creator"
 
 var receivers = sharedcomponent.NewSharedComponents()
 
@@ -26,7 +29,16 @@ func NewFactory() receiver.Factory {
 }
 
 func createDefaultConfig() component.Config {
-	return &Config{}
+	return &Config{
+		leaderElectionConfig: leaderElectionConfig{
+			leaseName:            "my-lease",
+			leaseNamespace:       "default",
+			leaseDurationSeconds: 15 * time.Second,
+			renewDeadlineSeconds: 15 * time.Second,
+			retryPeriodSeconds:   10 * time.Second,
+		},
+		subreceiverConfig: receiverConfig{},
+	}
 }
 
 func createLogsReceiver(

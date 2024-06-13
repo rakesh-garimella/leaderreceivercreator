@@ -40,7 +40,7 @@ spec:
       configMap:
         name: collector-config
   containers:
-    - image: skhalashatsap/otel-collector:dev
+    - image: docker.io/rakeshgarimella944/leader-elec:03
       imagePullPolicy: Always
       name: collector
       volumeMounts:
@@ -61,7 +61,7 @@ spec:
       configMap:
         name: collector-config
   containers:
-    - image: skhalashatsap/otel-collector:dev
+    - image: docker.io/rakeshgarimella944/leader-elec:03
       imagePullPolicy: Always
       name: collector
       volumeMounts:

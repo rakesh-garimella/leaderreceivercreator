@@ -46,7 +46,9 @@ func (ler *leaderReceiverCreator) Start(ctx context.Context, host component.Host
 	ctx = context.Background()
 	ctx, ler.cancel = context.WithCancel(ctx)
 
-	ler.params.TelemetrySettings.Logger.Info("Starting leader election receiver...")
+	ler.params.TelemetrySettings.Logger.Info("Starting leader election receiver...1")
+	ler.params.TelemetrySettings.Logger.Info(fmt.Sprintf("printing: %s\n", "config"))
+	ler.params.TelemetrySettings.Logger.Info(fmt.Sprintf("config is: %+v\n", ler.cfg))
 
 	client, err := ler.newClient()
 	if err != nil {

@@ -20,3 +20,6 @@ receivers:
   - gomod:
       github.com/skhalash/leaderreceivercreator main
 
+replaces:
+  - github.com/skhalash/leaderreceivercreator => ./
+

@@ -1,6 +1,7 @@
 package leaderreceivercreator
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -38,6 +39,7 @@ func newResourceLock(client kubernetes.Interface, leaderElectionNamespace, lockN
 
 // newLeaderElector return  a leader elector object using client-go
 func newLeaderElector(client kubernetes.Interface, onStartedLeading func(context.Context), onStoppedLeading func(), cfg leaderElectionConfig) (*leaderelection.LeaderElector, error) {
+	fmt.Printf("cfg for leader election: %+v\n", cfg)
 	namespace := cfg.leaseNamespace
 	lockName := cfg.leaseName
 

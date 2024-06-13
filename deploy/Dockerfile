@@ -3,10 +3,10 @@ FROM golang:1.22-alpine as build
 RUN apk --update add ca-certificates git
 
 WORKDIR /app
-COPY builder-config.yaml .
-
+COPY ./ .
+RUN ls
 RUN go install go.opentelemetry.io/collector/cmd/builder@latest
-RUN builder --config=builder-config.yaml --skip-strict-versioning
+RUN builder --config=./deploy/builder-config.yaml --skip-strict-versioning
 
 FROM scratch
 

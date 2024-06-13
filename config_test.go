@@ -1,14 +1,14 @@
 package leaderreceivercreator
 
 import (
-	"testing"
-	"path/filepath"
-
-	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/confmap/confmaptest"
-	"github.com/stretchr/testify/require"
 	"github.com/skhalash/leaderreceivercreator/internal/metadata"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/confmap/confmaptest"
+	"path/filepath"
+	"testing"
+	"time"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -22,13 +22,50 @@ func TestLoadConfig(t *testing.T) {
 		expected component.Config
 	}{
 		{
-			id: component.NewID(metadata.Type),
+			id: component.NewIDWithName(metadata.Type, "check-default-values"),
 			expected: &Config{
+				leaderElectionConfig: leaderElectionConfig{
+					leaseName:            "my-lease",
+					leaseNamespace:       "default",
+					leaseDurationSeconds: 15 * time.Second,
+					renewDeadlineSeconds: 15 * time.Second,
+					retryPeriodSeconds:   10 * time.Second,
+				},
 				subreceiverConfig: receiverConfig{
 					id: component.MustNewID("otlp"),
 					config: map[string]any{
 						"protocols": map[string]any{
 							"grpc": nil,
+						},
+					},
+				},
+			},
+		},
+		{
+			id: component.NewIDWithName(metadata.Type, "check-all-values"),
+			expected: &Config{
+				leaderElectionConfig: leaderElectionConfig{
+					leaseName:            "foo",
+					leaseNamespace:       "bar",
+					leaseDurationSeconds: 15 * time.Second,
+					renewDeadlineSeconds: 15 * time.Second,
+					retryPeriodSeconds:   10 * time.Second,
+				},
+				subreceiverConfig: receiverConfig{
+					id: component.MustNewID("k8s_cluster"),
+					config: map[string]any{
+						"auth_type":                   "serviceAccount",
+						"node_conditions_to_report":   []interface{}{"Ready", "MemoryPressure"},
+						"allocatable_types_to_report": []interface{}{"cpu", "memory"},
+						"metrics": map[string]any{
+							"k8s.container.cpu_limit": map[string]any{
+								"enabled": false,
+							},
+						},
+						"resource_attributes": map[string]any{
+							"container.id": map[string]any{
+								"enabled": false,
+							},
 						},
 					},
 				},

@@ -5,10 +5,9 @@ package leaderreceivercreator
 
 import (
 	"fmt"
-	"time"
-
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
+	"time"
 )
 
 const (
@@ -18,11 +17,12 @@ const (
 )
 
 type leaderElectionConfig struct {
-	leaseName            string
-	leaseNamespace       string
-	leaseDurationSeconds time.Duration
-	renewDeadlineSeconds time.Duration
-	retryPeriodSeconds   time.Duration
+	leaseName            string        `mapstructure:"lease_name"`
+	leaseNamespace       string        `mapstructure:"lease_namespace"`
+	leaseDurationSeconds time.Duration `mapstructure:"lease_duration_seconds"`
+	renewDeadlineSeconds time.Duration `mapstructure:"renew_deadline_seconds"`
+	retryPeriodSeconds   time.Duration `mapstructure:"retry_period_seconds"`
+	//config map[string]any
 }
 
 // receiverConfig describes a receiver instance with a default config.
@@ -47,14 +47,24 @@ func newReceiverConfig(name string, cfg map[string]any) (receiverConfig, error) 
 	}, nil
 }
 
-func newLeaderElectionConfig(cfg map[string]any) leaderElectionConfig {
-	return leaderElectionConfig{
-		leaseName:            cfg["lease_name"].(string),
-		leaseNamespace:       cfg["lease_namespace"].(string),
-		leaseDurationSeconds: cfg["lease_duration_seconds"].(time.Duration),
-		renewDeadlineSeconds: cfg["renew_deadline_seconds"].(time.Duration),
-		retryPeriodSeconds:   cfg["retry_period_seconds"].(time.Duration),
+func newLeaderElectionConfig(lecConfig leaderElectionConfig, cfg map[string]any) leaderElectionConfig {
+	if leaseName, ok := cfg["lease_name"].(string); ok {
+		lecConfig.leaseName = leaseName
 	}
+	if leaseNamespace, ok := cfg["lease_namespace"].(string); ok {
+		lecConfig.leaseNamespace = leaseNamespace
+	}
+	if leaseDuration, ok := cfg["lease_duration_seconds"].(time.Duration); ok {
+		lecConfig.leaseDurationSeconds = leaseDuration
+	}
+	if renewDeadline, ok := cfg["renew_deadline_seconds"].(time.Duration); ok {
+		lecConfig.renewDeadlineSeconds = renewDeadline
+	}
+	if retryPeriod, ok := cfg["retry_period_seconds"].(time.Duration); ok {
+		lecConfig.retryPeriodSeconds = retryPeriod
+	}
+
+	return lecConfig
 }
 
 var _ confmap.Unmarshaler = (*Config)(nil)
@@ -80,10 +90,12 @@ func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
 		return fmt.Errorf("unable to extract key %v: %w", subreceiverConfigKey, err)
 	}
 
-	leaderElectionConfig, err := componentParser.Sub(leaderElectionConfigKey)
+	lec, err := componentParser.Sub(leaderElectionConfigKey)
 	if err != nil {
 		return fmt.Errorf("unable to extract key %v: %w", leaderElectionConfigKey, err)
 	}
+
+	cfg.leaderElectionConfig = newLeaderElectionConfig(cfg.leaderElectionConfig, lec.ToStringMap())
 
 	for subreceiverKey := range subreceiverConfig.ToStringMap() {
 		receiverConfig, err := subreceiverConfig.Sub(subreceiverKey)
@@ -95,8 +107,6 @@ func (cfg *Config) Unmarshal(componentParser *confmap.Conf) error {
 		if err != nil {
 			return fmt.Errorf("failed to create subreceiver config: %w", err)
 		}
-
-		cfg.leaderElectionConfig = newLeaderElectionConfig(leaderElectionConfig.ToStringMap())
 
 		return nil
 	}
