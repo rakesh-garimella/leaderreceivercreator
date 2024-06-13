@@ -1,4 +1,4 @@
-module github.com/skhalash/leaderreceivercreator
+module github.com/rakesh-garimella/leaderreceivercreator
 
 go 1.22.0
 

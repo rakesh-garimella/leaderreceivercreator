@@ -1,7 +1,7 @@
 package leaderreceivercreator
 
 import (
-	"github.com/skhalash/leaderreceivercreator/internal/metadata"
+	"github.com/rakesh-garimella/leaderreceivercreator/internal/metadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"

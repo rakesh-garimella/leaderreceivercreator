@@ -7,8 +7,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/skhalash/leaderreceivercreator/internal/metadata"
-	"github.com/skhalash/leaderreceivercreator/internal/sharedcomponent"
+	"github.com/rakesh-garimella/leaderreceivercreator/internal/metadata"
+	"github.com/rakesh-garimella/leaderreceivercreator/internal/sharedcomponent"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
