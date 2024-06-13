@@ -95,7 +95,7 @@ func (run *receiverRunner) start(
 		zap.Any("config", cfg))
 
 	if err = wr.Start(context.Background(), run.host); err != nil {
-		return fmt.Errorf("failed starting endpoint-derived receiver: %w", createError)
+		return fmt.Errorf("failed starting endpoint-derived receiver: %w", err)
 	}
 
 	run.receiver = wr

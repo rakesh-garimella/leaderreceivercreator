@@ -14,7 +14,6 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -83,19 +82,29 @@ func (ler *leaderReceiverCreator) Start(ctx context.Context, host component.Host
 
 func (ler *leaderReceiverCreator) newClient() (kubernetes.Interface, error) {
 	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
+	fmt.Printf("kubeConfigPath111: %s\n", kubeConfigPath)
 
-	config, err := rest.InClusterConfig()
+	//config, err := rest.InClusterConfig()
+	//if err != nil {
+	//	ler.params.TelemetrySettings.Logger.Warn("Cannot find in cluster config", zap.Error(err))
+	//	config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	//	if err != nil {
+	//		ler.params.TelemetrySettings.Logger.Error("Cannot build ClientConfig", zap.Error(err))
+	//		fmt.Printf("failed to build clientConfig \n")
+	//		return nil, err
+	//	}
+	//}
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
-		ler.params.TelemetrySettings.Logger.Warn("Cannot find in cluster config", zap.Error(err))
-		config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-		if err != nil {
-			ler.params.TelemetrySettings.Logger.Error("Cannot build ClientConfig", zap.Error(err))
-			return nil, err
-		}
+		ler.params.TelemetrySettings.Logger.Error("Cannot build ClientConfig", zap.Error(err))
+		fmt.Printf("failed to build clientConfig \n")
+		return nil, err
 	}
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		ler.params.TelemetrySettings.Logger.Error("Cannot create Kubernetes client", zap.Error(err))
+		fmt.Printf("Unable to create k8s client\n")
 		return nil, err
 	}
 	return client, nil

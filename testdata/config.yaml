@@ -1,9 +1,9 @@
-leader_receiver_creator/check-default-values:
-  receiver:
-    otlp:
-      protocols:
-        grpc:
-leader_receiver_creator/check-all-values:
+#leader_receiver_creator/check-default-values:
+#  receiver:
+#    otlp:
+#      protocols:
+#        grpc:
+leader_receiver_creator:
   leader_election:
     lease_name: foo
     lease_namespace: bar

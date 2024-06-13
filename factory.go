@@ -34,8 +34,8 @@ func createDefaultConfig() component.Config {
 			leaseName:            "my-lease",
 			leaseNamespace:       "default",
 			leaseDurationSeconds: 15 * time.Second,
-			renewDeadlineSeconds: 15 * time.Second,
-			retryPeriodSeconds:   10 * time.Second,
+			renewDeadlineSeconds: 10 * time.Second,
+			retryPeriodSeconds:   5 * time.Second,
 		},
 		subreceiverConfig: receiverConfig{},
 	}
